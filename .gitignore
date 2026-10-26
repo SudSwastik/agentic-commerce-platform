@@ -1,0 +1,17 @@
+.venv/
+.env
+.ipynb_checkpoints/
+__pycache__/
+.pytest_cache/
+artifacts/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local planning and contributor instructions
+/AGENTS.md
+/docs/IMPLEMENTATION_PLAN.md
+/docs/ROADMAP.md
+
+# macOS metadata
+.DS_Store

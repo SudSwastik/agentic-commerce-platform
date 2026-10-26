@@ -1,0 +1,76 @@
+{
+  "scenario_id": "paid-order-stock-loss-and-ambiguous-shipment",
+  "status": "synthetic design fixture; executor not yet implemented",
+  "tenant_id": "demo-tenant",
+  "currency": "INR",
+  "order": {
+    "id": "O-1042",
+    "customer_id": "C-7",
+    "version": 4,
+    "state": "payment_captured",
+    "total_minor": 600000,
+    "items": [
+      {
+        "sku": "HEADPHONES",
+        "quantity": 1,
+        "unit_price_minor": 400000
+      },
+      {
+        "sku": "KEYBOARD",
+        "quantity": 1,
+        "unit_price_minor": 200000
+      }
+    ]
+  },
+  "inventory": {
+    "warehouse_a": {
+      "HEADPHONES": 0,
+      "KEYBOARD": 1
+    },
+    "warehouse_b": {
+      "HEADPHONES": 2,
+      "KEYBOARD": 0
+    }
+  },
+  "payment": {
+    "captured_minor": 600000,
+    "refunded_minor": 0,
+    "provider_reference": "PAY-1042",
+    "duplicate_webhook": true
+  },
+  "shipping": {
+    "alternate_warehouse_extra_minor": 15000,
+    "carrier_outcome": "timeout_after_acceptance",
+    "request_key": "SHIP-1042-v1",
+    "lookup_outcome": "accepted"
+  },
+  "policies": {
+    "version": "demo-v1",
+    "extra_shipping_auto_approval_limit_minor": 10000,
+    "product_substitution_requires_customer_approval": true
+  },
+  "expected_investigation": [
+    "Confirm captured payment from authoritative payment service",
+    "Query existing shipment reference before creating another shipment",
+    "Find current feasible warehouse allocation",
+    "Compare permitted recovery options and cite policy version"
+  ],
+  "required_decision": "Human approval for extra shipping above the synthetic 10000-minor-unit limit",
+  "execution_rules": [
+    "Do not duplicate capture, shipment, inventory reservation or refund",
+    "Revalidate resource versions and holds after approval",
+    "If the existing shipment can fulfill the order, reconcile it instead of creating another",
+    "If shipment and stock facts conflict, escalate rather than execute an unsupported plan"
+  ],
+  "agent_budgets": {
+    "max_tool_calls": 20,
+    "max_replans": 2,
+    "investigation_deadline_seconds": 60
+  },
+  "success_criteria": [
+    "Every write has a valid approval/policy basis and a stable idempotency key",
+    "No negative available inventory; no excess capture/refund",
+    "Final outcome is supported by current service receipts/state",
+    "Unresolved ambiguity is explicitly escalated rather than reported as recovered"
+  ]
+}
